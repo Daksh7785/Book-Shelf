@@ -1,9 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import useDebounce from '../hooks/useDebounce';
 import './Navbar.css';
 
 export default function Navbar({ cartCount, onCartClick, searchQuery, setSearchQuery }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [localQuery, setLocalQuery] = useState(searchQuery || '');
+  
+  const debouncedQuery = useDebounce(localQuery, 300);
+
+  useEffect(() => {
+    setSearchQuery(debouncedQuery);
+  }, [debouncedQuery, setSearchQuery]);
+
+  useEffect(() => {
+    if (searchQuery === '') {
+      setLocalQuery('');
+    }
+  }, [searchQuery]);
 
   return (
     <div className="nav-wrapper">
@@ -34,8 +48,8 @@ export default function Navbar({ cartCount, onCartClick, searchQuery, setSearchQ
               className="nav__search" 
               type="search" 
               placeholder="Search titles, authors…" 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={localQuery}
+              onChange={(e) => setLocalQuery(e.target.value)}
             />
             <button className="nav__cart" onClick={onCartClick} aria-label="Open cart">
               Cart
@@ -77,8 +91,8 @@ export default function Navbar({ cartCount, onCartClick, searchQuery, setSearchQ
               className="nav__search nav__search--mobile" 
               type="search" 
               placeholder="Search titles, authors…" 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={localQuery}
+              onChange={(e) => setLocalQuery(e.target.value)}
             />
           </div>
         )}
